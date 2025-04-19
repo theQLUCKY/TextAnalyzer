@@ -58,7 +58,7 @@ def index() -> str | None:
             idf_score = get_idf(all_words) # Передаем список со списками слов для получения idf
 
             words = get_words(doc.content) #Фильтруем элементы из файла
-            word_counts = Counter(words).most_common(50) #Считаем сколько раз какое слово встречается в файле
+            word_counts = Counter(words) #Считаем сколько раз какое слово встречается в файле
 
             table_data = [{
                 'word': word,
@@ -67,7 +67,7 @@ def index() -> str | None:
                 'length': len(words),
                 'idf': round(idf_score.get(word, 0.0), 4)
             } for word, count in word_counts]
-            table_data = sorted(table_data, key=lambda x: x['idf'], reverse=True) #Сортируем в порядке убывания
+            table_data = sorted(table_data, key=lambda x: x['idf'], reverse=True)[:50] #Сортируем в порядке убывания
                                                                                   #и ограничиваем 50-ю словами
 
             return render_template('index.html', table_data=table_data)  #Отдаем результат для формирования таблицы
