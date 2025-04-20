@@ -14,16 +14,16 @@ def index() -> str | None:
     """Функция принимает файл и отдает результат в index.html для формирования таблицы"""
     if request.method == 'POST':
         file = request.files['file']
+        print(request.files['file'])
         table = session.scalar(select(Document).where(Document.filename == file.filename)) # Проверяем есть ли файл с
                                                                                            # таким же названием в Базе
                                                                                            # если нет то добавляем иначе
                                                                                            # берем файл из Базы
         if file and file.filename.endswith('.txt'): #Проверяем является ли формат файла .txt
             if table is None: #Проверяем есть ли файл
-                filename = file.filename
 
-                with open(file.stream, 'r', encoding='utf-8') as f:
-                    content = f.read() #Получаем список из элементов файла
+                filename = file.filename
+                content = file.read().decode('utf-8') #Прочитываем файл
                 new_doc = Document(filename=filename, content=content) #Формируем объект
                 session.add(new_doc)  #Добавляем документ в базу
                 session.commit()      #Сохраняем документ
@@ -35,7 +35,7 @@ def index() -> str | None:
 
                 idf_score = get_idf(all_words) # Передаем список со списками слов для получения idf
                 words = get_words(content)  #Фильтруем элементы из файла
-                word_counts = Counter(words) #Считаем сколько раз какое слово встречается в файле
+                word_counts = Counter(words).items() #Считаем сколько раз какое слово встречается в файле
 
                 table_data = [{
                     'word': word,
@@ -56,9 +56,9 @@ def index() -> str | None:
                                                                                   # и передаем ее в функцию
                                                                                   # для извлечения слов
             idf_score = get_idf(all_words) # Передаем список со списками слов для получения idf
-
             words = get_words(doc.content) #Фильтруем элементы из файла
-            word_counts = Counter(words) #Считаем сколько раз какое слово встречается в файле
+            word_counts = Counter(words).items() #Считаем сколько раз какое слово встречается в файле
+
 
             table_data = [{
                 'word': word,
